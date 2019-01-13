@@ -35,9 +35,24 @@ GetCPEItems <- function(cpes) {
 
 CleanCPEs <- function(cpes){
 
-  # data manipulation
+  col_name <- c("std", "std.v", "parte", "vendedor", "producto",
+                "versión", "update", "edición", "idioma", "sw_edition",
+                "target_sw", "target_hw", "otro")
 
-  return(data.frame())
+  cpes$CPE23_name <- stringr::str_replace_all(cpes$CPE23_name, "\\\\:", ";")
+
+  cpes <- tidyr::separate(data = cpes, col = CPE23_name, into = col_name, sep = ":", remove = F)
+  cpes <- dplyr::select(.data = cpes, -std, -std.v)
+
+  cpes$vendedor <- as.factor(cpes$vendedor)
+  cpes$producto <- as.factor(cpes$producto)
+  cpes$idioma <- as.factor(cpes$idioma)
+  cpes$sw_edition <- as.factor(cpes$sw_edition)
+  cpes$target_sw <- as.factor(cpes$target_sw)
+  cpes$target_hw <- as.factor(cpes$target_hw)
+
+  return(cpes)
+
 }
 
 ParseCPEData <- function(cpe.file) {
@@ -51,13 +66,9 @@ ParseCPEData <- function(cpe.file) {
 
 
   # transform, clean, arrange parsed cpes as data frame
-  #df <- CleanCPEs(cpes)
+  df <- CleanCPEs(cpes)
 
   # return data frame
-  df <- cpes
   return(df)
 }
 
-### Main ---------------------------------------------------------------------------------------
-file <- DownloadCPEFile()
-ParseCPEData(file)
